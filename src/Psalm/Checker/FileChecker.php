@@ -217,7 +217,7 @@ class FileChecker extends SourceChecker implements StatementsSource
 
         $stmts = $this->getStatements();
 
-        /** @var array<int, PhpParser\Node\Expr|PhpParser\Node\Stmt> */
+        /** @var array<int, PhpParser\Node\Stmt> */
         $leftover_stmts = [];
 
         $statements_checker = new StatementsChecker($this);
@@ -541,7 +541,7 @@ class FileChecker extends SourceChecker implements StatementsSource
         $cache_location = null;
         $name_cache_key = null;
 
-        $version = 'parsercache4';
+        $version = 'parsercache5';
 
         $file_contents = $project_checker->getFileContents($file_path);
         $file_content_hash = md5($version . $file_contents);

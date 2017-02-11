@@ -52,10 +52,10 @@ class StatementsChecker extends SourceChecker implements StatementsSource
     /**
      * Checks an array of statements for validity
      *
-     * @param  array<PhpParser\Node\Stmt|PhpParser\Node\Expr>   $stmts
-     * @param  Context                                          $context
-     * @param  Context|null                                     $loop_context
-     * @param  Context|null                                     $global_context
+     * @param  array<PhpParser\Node\Stmt>   $stmts
+     * @param  Context                      $context
+     * @param  Context|null                 $loop_context
+     * @param  Context|null                 $global_context
      * @return null|false
      */
     public function analyze(
@@ -218,8 +218,8 @@ class StatementsChecker extends SourceChecker implements StatementsSource
                         $return_type_location
                     );
                 }
-            } elseif ($stmt instanceof PhpParser\Node\Expr) {
-                ExpressionChecker::analyze($this, $stmt, $context);
+            } elseif ($stmt instanceof PhpParser\Node\Stmt\Expression) {
+                ExpressionChecker::analyze($this, $stmt->expr, $context);
             } elseif ($stmt instanceof PhpParser\Node\Stmt\InlineHTML) {
                 // do nothing
             } elseif ($stmt instanceof PhpParser\Node\Stmt\Global_) {
@@ -342,12 +342,14 @@ class StatementsChecker extends SourceChecker implements StatementsSource
             }
 
             if ($context->check_variables) {
-                $context->vars_in_scope['$' . $var->name] = $var->default && isset($var->default->inferredType)
-                    ? $var->default->inferredType
-                    : Type::getMixed();
+                if (is_string($var->var->name)) {
+                    $context->vars_in_scope['$' . $var->var->name] = $var->default && isset($var->default->inferredType)
+                        ? $var->default->inferredType
+                        : Type::getMixed();
 
-                $context->vars_possibly_in_scope['$' . $var->name] = true;
-                $this->registerVariable('$' . $var->name, new CodeLocation($this, $stmt));
+                    $context->vars_possibly_in_scope['$' . $var->var->name] = true;
+                    $this->registerVariable('$' . $var->var->name, new CodeLocation($this, $var));
+                }
             }
         }
 
